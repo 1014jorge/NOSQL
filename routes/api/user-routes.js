@@ -1,12 +1,16 @@
 const router = require("express").Router();
 const { User } = require("../../models");
 
-//api/user
-router.get("/", (req, res) => {
-    User.find().select("-__v")
-
+//api/gets all users
+router.get("/", async (req, res) => {
+    try {
+        const dbUserData = await User.find().select("-__v")
+        res.status(200).json(dbUserData);
+    } catch (err) {
+        res.status(500).json(err);
+    }
 })
-
+//creates new users
 router.post("/", async (req, res) => {
     try {
         const dbUserData = await User.create(req.body);
@@ -14,8 +18,54 @@ router.post("/", async (req, res) => {
     } catch (err) {
         res.status(500).json(err)
     }
+});
+
+//api/users/:userid
+router.get("/:userId", async (req, res) => {
+    try {
+        const dbUserData = await User.findOne({ _id: req.params.userId })
+            .select("-__v")
+            .populate("friends")
+            .populate("thoughts");
+        if (!dbUserData) {
+            return res.status(404).json({ message: "No user with this ID" })
+        }
+        res.status(200).json(dbUserData);
+    } catch (err) {
+        res.status(500).json(err)
+
+    }
 })
 
+router.put("/:userId", async (req, res) => {
+    try {
+        const dbUserData = await User.findOneAndUpdate({
+            _id: req.params.userId,
+        }, {
+            $set: req.body,
+        },
+            {
+                runValidators: true,
+                new: true
 
+            }
+        );
+
+        if (!dbUserData) {
+            return res.status(404).json({ message: "No user with this ID" })
+        }
+        res.status(200).json(dbUserData)
+    } catch (err) {
+        res.status(500).json(err)
+    }
+})
+
+router.delete("/:userId", async (req, res) => {
+    try {
+
+    } catch (err) {
+
+    }
+})
 
 module.exports = router;
