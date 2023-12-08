@@ -33,7 +33,7 @@ module.exports = (timestamp, { monthLenght = 'short', dateSuffix = true } = {}) 
 
     }
 
-    const dateObj = Date(timestamp);
+    const dateObj = new Date(timestamp);
 
     const formattedMonth = months[dateObj.getMonth()];
 
